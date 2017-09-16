@@ -1,12 +1,12 @@
-(princ
+(print
   (mapcar (lambda (lst)
             (if (= (mod (length lst) 2) 0) :even :odd))
           '((a b c) (1 2) (10 c) (3 a))))
-; (:odd :even :even :even)
+;(:odd :even :even :even)
 
 (defun count-chars (char lst)
   (reduce (lambda (sum l) (+ sum (count char l))) lst :initial-value 0))
-(princ (count-chars #\e '("these" "cities" "are" "not" "big"))) ;4
+(print (count-chars #\e '("these" "cities" "are" "not" "big"))) ;4
 
 
 ;;concisely
@@ -38,16 +38,30 @@
 (loop for x in '((1 a) (2 b) (3 c) (4 d) (5 e) (6 f))
   do (format t "~%~a: ~a" (+ (car x) 5) (second x)))
   
+  
+;;draw 
 (defun draw-rect (array x y w h value)
   (dotimes (hi h)
     (dotimes (wi w)
       (setf (aref array (+ x wi) (+ y hi)) value))))
-     
 
-;;draw     
+(defun draw-line-x (array x y sign len value)
+  (dotimes (i len)
+    (setf (aref array (+ x (* i sign)) y) value)))
+    
 (defun draw-circle (array x y radius value)
-  ;TODO
-  )
+  (let ((bx (+ (- (+ x 1) radius) (/ (- radius 1) 2) 1))
+        (by (- y (/ (+ (- radius 2) radius) 2))))
+    (loop for i from 0 to (- (/ radius 2) 1) do
+      (draw-line-x array (decf bx) by +1 (+ (* 2 i) radius) value)
+      (incf by))
+    (decf bx)
+    (loop for j from 0 to (- radius 1) do
+      (draw-line-x array bx by +1 (- (* radius 2) 1) value)
+      (incf by))
+    (loop for k from 0 to (- (/ radius 2) 1) do
+      (draw-line-x array (incf bx) by +1 (- (* 2 (- radius 1)) 1 (* 2 k)) value)
+      (incf by))))
 
 (defun clear-array (array value)
   (dotimes (y (second (array-dimensions array)))
@@ -89,8 +103,8 @@
 |||||+++++++++|||||
 ||||+++     +++||||
 |||+++       +++|||
-|||++   ~ ~   ++|||
-|||++   O O   ++|||
+|||++  ~   ~  ++|||
+|||++  O   O  ++|||
 |||++         ++|||
 ...++    V    ++...
 ...++         ++...
@@ -111,7 +125,7 @@
                     (if (listp x) (flatten x) (list x))))
           lst
           :initial-value nil))
-;(flatten '((a (b c (d e) f g)) h (i j))) ;(A B C D E F G H I J)
+(flatten '((a (b c (d e) f g)) h (i j))) ;(A B C D E F G H I J)
 
 (defun str-append (strings &optional separator)
   (if (null (cdr strings))
@@ -119,8 +133,8 @@
       (concatenate 'string (car strings)
         separator
         (str-append (cdr strings) separator))))
-;(str-append '("foo" "bar" "baz") ", ") ;"foo, bar, baz"
-;(str-append '("foo" "bar" "baz")) ;"foobarbaz"
+(str-append '("foo" "bar" "baz") ", ") ;"foo, bar, baz"
+(str-append '("foo" "bar" "baz")) ;"foobarbaz"
 
 (defun partition (test lst)
   (if (eql test #'eql)
